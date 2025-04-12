@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <table style="border: 2px solid black;" id="root">
+        <tr>
+            <td style="border: 2px solid black;">name</td>
+            <td style="border: 2px solid black;">email</td>
+            <td style="border: 2px solid black;">password</td>
+            <td style="border: 2px solid black;">Edit</td>
+        </tr>
+    </table>
+
+    <script>
+
+    // const deleteData = async (id) => {
+    //     try {
+    //         await fetch(`http://localhost:2000/contact/${id}`, {
+    //             method: "DELETE",
+    //         });
+    //         window.location.reload();
+    //     } catch (error) {
+    //         console.log(error);
+    //     }
+    // };
+
+    const deleteData = async (id) => {
+        try {
+            fetch(`http://localhost:2000/contact/${id}`,
+            {method: `delete`,
+            },)
+            window.location.reload();
+        } catch (error) {
+         console.log(`error`)   
+        }
+    }
+
+    const update_one = async (id, name, email, password) => {
+        try {
+            fetch(`http://localhost:2000/contact/${id}`,{
+                method :`UPDATE`
+            }
+            ), window.location.reload();
+        } catch (error) {
+            console.log(`error`)
+        }
+    }
+
+    const findData = () => {
+        fetch(`http://localhost:2000/contact/`)
+            .then(res => res.json())
+            .then(data => {
+                console.log(data);
+                const table = document.getElementById("root");
+
+                data.user.forEach(el => {
+                    const row = document.createElement("tr");
+
+                    row.innerHTML = `
+                        <td style="border: 2px solid black;">${el.name}</td>
+                        <td style="border: 2px solid black;">${el.email}</td>
+                        <td style="border: 2px solid black;">${el.password}</td>
+                        <td style="border: 2px solid black;">
+                            <button onclick='update_one("${el._id}")'>Edit</button>
+                            <button onclick='deleteData("${el._id}")'>Delete</button>
+                        </td>
+                    `;
+                    table.appendChild(row);
+                });
+            })
+            .catch(err => {
+                console.log(err);
+            });
+    }
+    const editData = (id) => {
+        alert("Edit functionality not implemented yet. ID: " + id);
+    };
+
+    findData();
+    </script>
+</body>
+</html>
