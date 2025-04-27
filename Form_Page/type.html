@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Typing Speed Test</title>
+  <style>
+    body {
+      background-color: #1e1e2e;
+      color: #cdd6f4;
+      font-family: monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .words {
+      width: 70%;
+      font-size: 24px;
+      line-height: 1.8;
+      text-align: center;
+    }
+    #input {
+      margin-top: 20px;
+      width: 60%;
+      padding: 10px;
+      font-size: 24px;
+      background: #2b2b3c;
+      color: #cdd6f4;
+      border: none;
+      outline: none;
+    }
+    .stats {
+      margin-top: 20px;
+      font-size: 18px;
+      display: flex;
+      gap: 30px;
+    }
+    .highlight {
+      background-color: #cba6f7;
+      color: #1e1e2e;
+      padding: 0 4px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="words" id="wordsContainer"></div>
+  <input type="text" id="input" placeholder="Start typing..." autofocus>
+  <div class="stats">
+    <div>WPM: <span id="wpm">0</span></div>
+    <div>Typed Words: <span id="typed">0</span></div>
+    <div>Incorrect Words: <span id="errors">0</span></div>
+  </div>
+
+  <script>
+    const words = [
+      "hand", "not", "last", "during", "way", "child", "person", "open", "very",
+      "all", "set", "fact", "first", "one", "like", "because", "old", "play",
+      "consider", "under", "time", "we", "end", "know", "with", "down", "any",
+      "help", "no", "some", "word", "then", "each"
+    ];
+
+    let wordIndex = 0;
+    let typedCount = 0;
+    let errorCount = 0;
+    let startTime = null;
+
+    const wordsContainer = document.getElementById("wordsContainer");
+    const input = document.getElementById("input");
+    const wpmDisplay = document.getElementById("wpm");
+    const typedDisplay = document.getElementById("typed");
+    const errorsDisplay = document.getElementById("errors");
+
+    function renderWords() {
+      wordsContainer.innerHTML = words
+        .map((word, index) => {
+          return index === wordIndex ? `<span class="highlight">${word}</span>` : word;
+        })
+        .join(" ");
+    }
+
+    input.addEventListener("input", () => {
+      if (!startTime) startTime = new Date();
+
+      const typedWord = input.value.trim();
+      const currentWord = words[wordIndex];
+
+      if (typedWord.endsWith(" ")) return; // prevent premature space
+
+      if (input.value.endsWith(" ")) {
+        typedCount++;
+        if (typedWord !== currentWord) {
+          errorCount++;
+        }
+        wordIndex++;
+        input.value = "";
+
+        const elapsedTime = (new Date() - startTime) / 60000; // in minutes
+        const wpm = Math.round(typedCount / elapsedTime);
+
+        renderWords();
+        wpmDisplay.textContent = wpm;
+        typedDisplay.textContent = typedCount;
+        errorsDisplay.textContent = errorCount;
+      }
+    });
+
+    renderWords();
+  </script>
+
+</body>
+</html>
