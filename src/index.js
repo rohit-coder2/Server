@@ -6,6 +6,7 @@ import connectToDatabase from "./mongoose/db.js";
 import User from './model/user.model.js';
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
+import deserializerUser from './middlewair/deselirizetion.middlewaire.js';
 
 
 const app = express();
@@ -20,38 +21,55 @@ app.use(express.json());
 
 
 app.get("/contact", async (req, res) => {
-    const user = await User.find({ active : true });
+    const user = await User.find({ active: true });
     res.json({
-        user , status : true
+        user, status: true
     });
 });
+
+app.get('/profile', deserializerUser, (req, res) => {
+    try {
+        if (!req.user) {
+            return res.json(400)
+        }
+        return res.json(req.user)
+    } catch (error) {
+        console.log(err);
+        return res.json(400);
+    }
+})
 
 app.get("/contact/:id", async (req, res) => {
-    const user = await User.findOne({ active : true, _id : req.params.id });
+    const user = await User.findOne({ active: true, _id: req.params.id });
     res.json({
-        user , status : true
+        user, status: true
     });
 });
 
-app.post("/login" , async (req , res)=>{
+app.post("/login", async (req, res) => {
     try {
         console.log(req?.body?.email)
         console.log(req?.body?.password)
-        const user = await User.findOne({email : req.body.email});
+        const user = await User.findOne({ email: req.body.email });
         console.log(user)
-        if(!user){
-            return res.json({"message" : "user is founded" , user}).status(400);
+        if (!user) {
+            return res.json({ "message": "your not a user", user }).status(400);
         }
         // const isValid =  await user.comparePassword(req.body.password).json(400);
-        const isValid =  await bcrypt.compare(req?.body?.password , user?.password);
-        if(!isValid) return res.json({"error":"password incorrect"});
-        const token = await jwt.sign(user);
-        return res.json({token})
+        const isValid = await bcrypt.compare(req?.body?.password, user?.password);
+        if (!isValid) return res.json({ "error": "password incorrect" });
+        const token = await jwt.sign({
+            "name": user.name,
+            "_id": user._id,
+            "email": user.email,
+
+        }, `rohit_private_key`);
+        return res.json({ token })
     } catch (error) {
         console.log(error);
-        return res.json({"error":"you are not a user"}).status(500)
+        return res.json({ "error": "internal server error" }).status(500)
     }
-} )
+})
 
 app.post("/contact", async (req, res) => {
     console.log(req.body)
@@ -96,13 +114,13 @@ app.put("/contact/:id", async (req, res) => {
 
 
 app.delete("/contact/:id", async (req, res) => {
-    const user = await User.updateOne({_id : req.params.id }, {active : false});
+    const user = await User.updateOne({ _id: req.params.id }, { active: false });
     console.log(req.body);
     res.json({
         "message": "Data Deleted successfully"
     });
 });
-        
+
 
 app.listen(2000, () => {
     connectToDatabase()
